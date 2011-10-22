@@ -13,6 +13,7 @@ app = Flask(__name__)
 @app.template_filter()
 @evalcontextfilter
 def unescape(eval_ctx, s):
+	""" adds a jinja filter to unescape html entities """
 	s = s.replace('&lt;', '<')
 	s = s.replace('&gt;', '>')
 	s = s.replace('&amp;', '&')	
@@ -23,6 +24,20 @@ def unescape(eval_ctx, s):
 @app.route('/page/<page>')
 @app.route('/<title>/<id>')
 def index(page=1, title=None, id=None):
+	"""
+	the actual website has too many ads on it and my phone
+	hates it so i made this.
+
+	It grabs the 'storycontent' div from each page, which has the story.
+
+	If it's there, it'll grab the 'wp-pagenavi' div so I don't have to
+	rewrite the pagination for the entire website.  It doesn't show up on
+	single posts
+
+	Should be easy to change to almost any wordpress blog.
+	May be extendable with Flask blueprints?
+	
+	"""
 	if id:
 		html = urllib2.urlopen("http://notalwaysright.com/"+title+"/"+id).read()
 	else:
