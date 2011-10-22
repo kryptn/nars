@@ -1,0 +1,67 @@
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+  <head profile="http://gmpg.org/xfn/11">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap-1.2.0.min.css">
+    <style>
+    body { background:#000; color:#ccc;};
+
+    .wp-pagenavi {
+    font-size: 13px;
+    padding-top: 10px;
+    }
+
+    .wp-pagenavi a, .wp-pagenavi a:link, .wp-pagenavi a:active {
+        padding: 2px 4px 2px 4px; 
+        margin: 2px;
+        text-decoration: none;
+        border: 1px solid #333;
+        color: #fff;
+        background-color: #333; 
+    }
+    .wp-pagenavi a:hover {  
+        border: 1px solid #333;
+        color: #555;
+        background-color: #000;
+    }
+    .wp-pagenavi span.pages {
+        padding: 2px 4px 2px 4px; 
+        margin: 2px 2px 2px 2px;
+        border: 1px solid #333;
+        color: #888;
+        background-color: 000;
+    }
+    .wp-pagenavi span.current {
+        padding: 2px 4px 2px 4px; 
+        margin: 2px;
+        font-weight: bold;
+        border: 1px solid #333;
+        color: #888;
+        background-color: #000;
+    }
+    .wp-pagenavi span.extend {
+        padding: 2px 4px 2px 4px; 
+        margin: 2px;    
+        border: 1px solid #333;
+        color: #888;
+        background-color: #000;
+    }
+    </style>
+  </head>
+  <body>
+    <div class="container" style="padding-bottom:50px">
+      {% for story in content %}
+      <div style="padding:5px 10px">
+        <div class="page-header">
+          <h2>{{story.title|unescape}}</h1>
+        </div>
+        {{story.content|unescape}}
+      </div>
+      {% endfor %}
+      {% if pages %}
+      <div class="wp-pagenavi" style="padding:5px;">
+        {{pages|unescape}}
+      </div>
+      {% endif %}
+    </div>
+  </body>
+</html>
