@@ -1,4 +1,4 @@
-#/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 from BeautifulSoup import BeautifulSoup as bs
 from collections import namedtuple
