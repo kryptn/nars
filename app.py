@@ -1,11 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from BeautifulSoup import BeautifulSoup as bs
-from flask import Flask, render_template, url_for, redirect
+from BeautifulSoup import BeautifulSoup
+from flask import Flask, render_template
 from jinja2 import evalcontextfilter, Markup
 import urllib2
-
-DOMAIN = "welp.in/nar"
 
 app = Flask(__name__)
 
@@ -55,7 +53,7 @@ def index(base, page=1, title=None, id=None):
 	for b in bases:
 		html = html.replace('notalways%s.com'%b,'welp.in/nar/'+b)
 
-	soup, r = bs(html), list()
+	soup, r = BeautifulSoup(html), list()
 	stories = soup.findAll(attrs={'class':'post'})
 	if id: stories = stories[:1]
 
@@ -63,9 +61,10 @@ def index(base, page=1, title=None, id=None):
 		t = {'title': unicode(s.a),
 			  'category': unicode(s.div.text),
 			  'content': unicode(s.find('div','storycontent')) }
-		r.append(t)
+		if 'Announcements' not in t['category']:
+			r.append(t)
 
-	if id:
+	if not id:
 		pages = None
 	else:
 		pages = unicode(soup.find('div','wp-pagenavi'))
