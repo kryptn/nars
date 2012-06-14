@@ -64,7 +64,7 @@ def index(base, page=1, title=None, id=None):
 		if 'Announcements' not in t['category']:
 			r.append(t)
 
-	if not id:
+	if id:
 		pages = None
 	else:
 		pages = unicode(soup.find('div','wp-pagenavi'))
