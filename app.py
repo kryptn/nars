@@ -1,8 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from BeautifulSoup import BeautifulSoup as bs
-from collections import namedtuple
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, redirect
 from jinja2 import evalcontextfilter, Markup
 import urllib2
 
@@ -20,12 +19,13 @@ def unescape(eval_ctx, s):
 	if eval_ctx.autoescape: s = Markup(s)
 	return s
 
-@app.route('/', defaults={'page': '1'})
-@app.route('/page/<page>')
-@app.route('/<title>/<id>')
-def index(page=1, title=None, id=None):
+@app.route('/', defaults={'base':'right', 'page':'1'})
+@app.route('/<base>/', defaults={'page':'1'})
+@app.route('/<base>/page/<page>')
+@app.route('/<base>/<title>/<id>')
+def index(base, page=1, title=None, id=None):
 	"""
-	the actual website has too many ads on it and my phone
+	the actual websites has too many ads on it and my phone
 	hates it so i made this.
 
 	It grabs the 'storycontent' div from each page, which has the story.
@@ -38,28 +38,39 @@ def index(page=1, title=None, id=None):
 	May be extendable with Flask blueprints?
 	
 	"""
-	if id:
-		html = urllib2.urlopen("http://notalwaysright.com/"+title+"/"+id).read()
+
+	bases = ['right','romantic','working','related']
+	if base in bases:
+		pass
 	else:
-		html = urllib2.urlopen("http://notalwaysright.com/page/"+page).read()
-	soup = bs(html)
+		base = 'right'
+
+	url = 'http://notalways%s.com/' % base
+
+	if id:
+		html = urllib2.urlopen(url+title+'/'+id).read()
+	else:
+		html = urllib2.urlopen(url+"page/"+page).read()
+
+	for b in bases:
+		html = html.replace('notalways%s.com'%b,'welp.in/nar/'+b)
+
+	soup, r = bs(html), list()
 	stories = soup.findAll(attrs={'class':'post'})
-	r = []
-	Content = namedtuple('Content', ['title','content'])
+	if id: stories = stories[:1]
+
 	for s in stories:
-		title = unicode(s.a)
-		content = unicode(s.find('div','storycontent'))
-		title = title.replace("notalwaysright.com",DOMAIN)
-		content = content.replace("notalwaysright.com",DOMAIN)
-		r.append(Content(title, content))
-	
+		t = {'title': unicode(s.a),
+			  'category': unicode(s.div.text),
+			  'content': unicode(s.find('div','storycontent')) }
+		r.append(t)
+
 	if id:
 		pages = None
 	else:
 		pages = unicode(soup.find('div','wp-pagenavi'))
-		pages = pages.replace("notalwaysright.com",DOMAIN)
 
-	return render_template("index.html", content=r, pages=pages)
+	return render_template('index.html', content=r, pages=pages)
 
 
 if __name__ == '__main__':
