@@ -48,11 +48,18 @@
     </style>
   </head>
   <body>
+    <div>
+      <span><a href="http://welp.in/nar/right">right</a>
+        <a href="http://welp.in/nar/romantic">romantic</a>
+        <a href="http://welp.in/nar/related">related</a>
+        <a href="http://welp.in/nar/working">working</a></span>
+    </div>
     <div class="container" style="padding-bottom:50px">
       {% for story in content %}
       <div style="padding:5px 10px">
         <div class="page-header">
-          <h2>{{story.title|unescape}}</h1>
+          <h2>{{story.title|unescape}}</h2>
+          <h4 style="color:#333">{{story.category}}</h4>
         </div>
         {{story.content|unescape}}
       </div>
@@ -63,5 +70,6 @@
       </div>
       {% endif %}
     </div>
+    
   </body>
 </html>
