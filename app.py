@@ -17,11 +17,16 @@ def unescape(eval_ctx, s):
 	if eval_ctx.autoescape: s = Markup(s)
 	return s
 
+#ohgod this needs to be separated. or does it?
 @app.route('/', defaults={'base':'right', 'page':'1'})
 @app.route('/<base>/', defaults={'page':'1'})
+@app.route('/<base>/category/<category>', defaults={'page':'1'})
+@app.route('/<base>/tag/<tag>', defaults={'page':'1'})
 @app.route('/<base>/page/<page>')
+@app.route('/<base>/category/<category>/page/<page>')
+@app.route('/<base>/tag/<tag>/page/<page>')
 @app.route('/<base>/<title>/<id>')
-def index(base, page=1, title=None, id=None):
+def index(base, page=1, category=None, tag=None, title=None, id=None, debug=False):
 	"""
 	the actual websites has too many ads on it and my phone
 	hates it so i made this.
@@ -32,26 +37,31 @@ def index(base, page=1, title=None, id=None):
 	rewrite the pagination for the entire website.  It doesn't show up on
 	single posts
 
-	Should be easy to change to almost any wordpress blog.
-	May be extendable with Flask blueprints?
+	This should generall work on any notalways[x] website and is easily
+	expanded to new ones by modifying the 'bases' list
 	
 	"""
 
 	bases = ['right','romantic','working','related']
-	if base in bases:
-		pass
-	else:
+	if base not in bases:
 		base = 'right'
 
-	url = 'http://notalways%s.com/' % base
+	url = 'http://notalways%s.com' % base
 
 	if id:
-		html = urllib2.urlopen(url+title+'/'+id).read()
+		html = urllib2.urlopen('%s/%s/%s'               % (url,title,id)).read()
+	elif category:
+		html = urllib2.urlopen('%s/category/%s/page/%s' % (url,category,page)).read()
+	elif tag:
+		html = urllib2.urlopen('%s/tag/%s/page/%s'      % (url,tag,page)).read()
 	else:
-		html = urllib2.urlopen(url+"page/"+page).read()
+		html = urllib2.urlopen('%s/page/%s'             % (url, page)).read()
+
+	if debug: return html
 
 	for b in bases:
-		html = html.replace('notalways%s.com'%b,'welp.in/nar/'+b)
+		html = html.replace('notalways%s.com' % b, 'welp.in/nar/%s' % b)
+	#html = html.replace(u'href="/', 'href="/nar/%s/' % str(base)) need to fix (not sure why)
 
 	soup, r = BeautifulSoup(html), list()
 	stories = soup.findAll(attrs={'class':'post'})
@@ -59,7 +69,7 @@ def index(base, page=1, title=None, id=None):
 
 	for s in stories:
 		t = {'title': unicode(s.a),
-			  'category': unicode(s.div.text),
+			  'category': unicode(s.div),
 			  'content': unicode(s.find('div','storycontent')) }
 		if 'Announcements' not in t['category']:
 			r.append(t)
@@ -69,8 +79,8 @@ def index(base, page=1, title=None, id=None):
 	else:
 		pages = unicode(soup.find('div','wp-pagenavi'))
 
-	return render_template('index.html', content=r, pages=pages)
 
+	return render_template('index.html', bases=bases, content=r, pages=pages)
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0',debug=True)
